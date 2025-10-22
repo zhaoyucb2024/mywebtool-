@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Splitter Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/wavesurfer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 48px;
+            max-width: 900px;
+            width: 100%;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 1rem;
+            margin-bottom: 40px;
+        }
+
+        .upload-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 32px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f1f5f9 0%, #dbeafe 100%);
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            color: #475569;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        #waveform {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(to bottom, #f8fafc, #ffffff);
+            border-radius: 16px;
+            margin-bottom: 32px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #status {
+            margin-top: 24px;
+            padding: 20px;
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 500;
+            color: #1e40af;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        #status.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .feature-item {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #bbf7d0;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .feature-text {
+            color: #166534;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Audio Splitter Pro</h1>
+        <p class="subtitle">Automatically split audio files by detecting silence intervals</p>
+
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-text">Fast Processing</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-text">Smart Detection</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔇</div>
+                <div class="feature-text">Remove Silence</div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            💡 <strong>Tip:</strong> This tool detects silence intervals longer than 2 seconds and splits your audio accordingly. All segments are exported without silence.
+        </div>
+
+        <label for="file-input" class="upload-section" id="upload-section">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">Click to choose an audio file</div>
+        </label>
+        <input type="file" id="file-input" accept="audio/*">
+
+        <div id="waveform" style="display: none;"></div>
+
+        <button id="split-button" class="button" disabled>🎬 Split Audio & Download</button>
+
+        <div id="status">
+            <div id="status-text">Ready to process...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let wavesurfer;
+        let fileName = '';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            wavesurfer = WaveSurfer.create({
+                container: '#waveform',
+                waveColor: '#667eea',
+                progressColor: '#764ba2',
+                cursorColor: '#1e293b',
+                barWidth: 3,
+                barRadius: 3,
+                responsive: true,
+                height: 148,
+                barGap: 2
+            });
+
+            document.getElementById('file-input').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    fileName = file.name.replace(/\.[^/.]+$/, "");
+                    document.getElementById('waveform').style.display = 'block';
+                    document.getElementById('upload-section').style.display = 'none';
+                    wavesurfer.loadBlob(file);
+                    document.getElementById('split-button').disabled = false;
+                    updateStatus('Audio file loaded successfully! Ready to split.', 0);
+                }
+            });
+
+            document.getElementById('split-button').addEventListener('click', splitAudio);
+        });
+
+        function updateStatus(text, progress) {
+            const statusElement = document.getElementById('status');
+            const statusText = document.getElementById('status-text');
+            const progressFill = document.getElementById('progress-fill');
+            
+            statusElement.classList.add('active');
+            statusText.textContent = text;
+            progressFill.style.width = progress + '%';
+        }
+
+        async function splitAudio() {
+            updateStatus('Analyzing audio...', 10);
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const audioBuffer = await wavesurfer.backend.buffer;
+            const channelData = audioBuffer.getChannelData(0);
+            const sampleRate = audioBuffer.sampleRate;
+            const silenceThreshold = 0.01;
+            const minSilenceDuration = 2;
+            const minSegmentDuration = 1;
+
+            let segments = [];
+            let segmentStart = null;
+            let silenceStart = null;
+
+            updateStatus('Detecting silence intervals...', 30);
+
+            for (let i = 0; i < channelData.length; i++) {
+                if (Math.abs(channelData[i]) >= silenceThreshold) {
+                    if (segmentStart === null) {
+                        segmentStart = i;
+                    }
+                    silenceStart = null;
+                } else {
+                    if (silenceStart === null) {
+                        silenceStart = i;
+                    }
+                    if (segmentStart !== null && (i - silenceStart) / sampleRate >= minSilenceDuration) {
+                        if ((silenceStart - segmentStart) / sampleRate >= minSegmentDuration) {
+                            segments.push({ start: segmentStart, end: silenceStart });
+                        }
+                        segmentStart = null;
+                    }
+                }
+            }
+
+            if (segmentStart !== null) {
+                segments.push({ start: segmentStart, end: channelData.length });
+            }
+
+            updateStatus(`Found ${segments.length} segments. Creating audio files...`, 50);
+
+            const zip = new JSZip();
+
+            for (let i = 0; i < segments.length; i++) {
+                const { start, end } = segments[i];
+                const segmentBuffer = audioContext.createBuffer(
+                    audioBuffer.numberOfChannels,
+                    end - start,
+                    sampleRate
+                );
+
+                for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+                    const channelData = audioBuffer.getChannelData(channel);
+                    segmentBuffer.copyToChannel(channelData.slice(start, end), channel);
+                }
+
+                const blob = await bufferToWave(segmentBuffer, segmentBuffer.length);
+                zip.file(`${fileName}_segment_${String(i + 1).padStart(3, '0')}.wav`, blob);
+
+                const progress = 50 + ((i + 1) / segments.length) * 30;
+                updateStatus(`Processing segment ${i + 1} of ${segments.length}...`, progress);
+            }
+
+            updateStatus('Generating zip file...', 85);
+            
+            zip.generateAsync({type:"blob"})
+            .then(function(content) {
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${fileName}_segments.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                updateStatus('✅ Complete! Your audio segments have been downloaded.', 100);
+            });
+        }
+
+        function bufferToWave(abuffer, len) {
+            const numOfChan = abuffer.numberOfChannels;
+            const length = len * numOfChan * 2 + 44;
+            const buffer = new ArrayBuffer(length);
+            const view = new DataView(buffer);
+            const channels = [];
+            let i, sample;
+            let offset = 0;
+
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, length - 8, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numOfChan, true);
+            view.setUint32(24, abuffer.sampleRate, true);
+            view.setUint32(28, abuffer.sampleRate * 2 * numOfChan, true);
+            view.setUint16(32, numOfChan * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, length - 44, true);
+
+            for (i = 0; i < abuffer.numberOfChannels; i++)
+                channels.push(abuffer.getChannelData(i));
+
+            while (offset < len) {
+                for (i = 0; i < numOfChan; i++) {
+                    sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                    sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+                    view.setInt16(44 + (offset * numOfChan + i) * 2, sample, true);
+                }
+                offset++;
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+    </script>
+</body>
+</html>
