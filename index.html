@@ -1,428 +1,930 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Splitter Pro</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/wavesurfer.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSCA Preparatory Programs | ORVIEWS Education</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-page: #FAF9F6;
+      --bg-card: #FFFFFF;
+      --brand-green: #0E4D34;
+      --brand-green-dark: #093725;
+      --brand-gold: #A88B4A;
+      --brand-champagne: #E7CF9B;
+      --brand-champagne-hover: #DFC282;
+      --text-primary: #1D2621;
+      --text-secondary: #546059;
+      --text-light: #E6ECE9;
+      --border-light: #E6E4DD;
+      --shadow-soft: 0 10px 30px rgba(14, 77, 52, 0.05);
+      --shadow-featured: 0 20px 45px rgba(14, 77, 52, 0.18);
+    }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 48px;
-            max-width: 900px;
-            width: 100%;
-            animation: fadeIn 0.6s ease-out;
-        }
+    html {
+      scroll-behavior: smooth;
+    }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: center;
-            margin-bottom: 12px;
-        }
+    h1, h2, h3, .serif {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
 
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            font-size: 1rem;
-            margin-bottom: 40px;
-        }
+    /* Navigation */
+    header {
+      background-color: rgba(250, 249, 246, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-light);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-        .upload-section {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            border: 2px dashed #cbd5e1;
-            border-radius: 16px;
-            padding: 40px;
-            text-align: center;
-            margin-bottom: 32px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        .upload-section:hover {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #f1f5f9 0%, #dbeafe 100%);
-            transform: translateY(-2px);
-        }
+    .logo {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      text-decoration: none;
+    }
 
-        .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-        }
+    .logo-mark {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--brand-green);
+    }
 
-        .upload-text {
-            color: #475569;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
+    .logo-sub {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--brand-gold);
+      font-weight: 500;
+    }
 
-        #file-input {
-            display: none;
-        }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
 
-        #waveform {
-            width: 100%;
-            height: 180px;
-            background: linear-gradient(to bottom, #f8fafc, #ffffff);
-            border-radius: 16px;
-            margin-bottom: 32px;
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 16px;
-        }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
 
-        .button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 16px 32px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: block;
-            width: 100%;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
+    .nav-links a:hover {
+      color: var(--brand-green);
+    }
 
-        .button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
+    .nav-cta {
+      padding: 9px 20px;
+      border: 1px solid var(--brand-green);
+      color: var(--brand-green) !important;
+      border-radius: 4px;
+      font-weight: 500;
+      transition: all 0.2s !important;
+    }
 
-        .button:active:not(:disabled) {
-            transform: translateY(0);
-        }
+    .nav-cta:hover {
+      background-color: var(--brand-green);
+      color: #FFFFFF !important;
+    }
 
-        .button:disabled {
-            background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+    /* Hero Section */
+    .hero {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 76px 24px 52px;
+      text-align: center;
+    }
 
-        #status {
-            margin-top: 24px;
-            padding: 20px;
-            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-            border-radius: 12px;
-            text-align: center;
-            font-weight: 500;
-            color: #1e40af;
-            display: none;
-            animation: slideIn 0.4s ease-out;
-        }
+    .eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--brand-gold);
+      margin-bottom: 16px;
+    }
 
-        #status.active {
-            display: block;
-        }
+    .hero h1 {
+      font-size: clamp(38px, 5vw, 54px);
+      line-height: 1.12;
+      color: var(--brand-green);
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    .hero p {
+      font-size: 16.5px;
+      color: var(--text-secondary);
+      max-width: 720px;
+      margin: 0 auto 28px;
+      font-weight: 400;
+    }
 
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e2e8f0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 12px;
-        }
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px 28px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.3s ease;
-            border-radius: 4px;
-        }
+    .hero-badges span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-        .info-card {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-left: 4px solid #f59e0b;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            font-size: 0.9rem;
-            color: #92400e;
-        }
+    .hero-badges span::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--brand-gold);
+    }
 
-        .feature-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 32px;
-        }
+    /* Packages Section */
+    .packages-section {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 20px 24px 96px;
+    }
 
-        .feature-item {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid #bbf7d0;
-        }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      align-items: stretch;
+    }
 
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 8px;
-        }
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 40px 34px 36px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
 
-        .feature-text {
-            color: #166534;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-    </style>
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px rgba(14, 77, 52, 0.09);
+    }
+
+    .card.featured {
+      background-color: var(--brand-green);
+      border-color: var(--brand-green);
+      color: #FFFFFF;
+      box-shadow: var(--shadow-featured);
+      position: relative;
+    }
+
+    .card-tag {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--brand-gold);
+      margin-bottom: 10px;
+    }
+
+    .card.featured .card-tag {
+      color: var(--brand-champagne);
+    }
+
+    .card-title {
+      font-size: 34px;
+      line-height: 1.15;
+      font-weight: 700;
+      color: var(--brand-green);
+      margin-bottom: 16px;
+    }
+
+    .card.featured .card-title {
+      color: #FFFFFF;
+    }
+
+    .card-desc {
+      font-size: 14.5px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      min-height: 76px;
+    }
+
+    .card.featured .card-desc {
+      color: var(--text-light);
+    }
+
+    .card-price-box {
+      margin-bottom: 24px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .price-amount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .card.featured .price-amount {
+      color: var(--brand-champagne);
+    }
+
+    .price-unit {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .card.featured .price-unit {
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .card-divider {
+      height: 1px;
+      background-color: var(--border-light);
+      margin-bottom: 24px;
+    }
+
+    .card.featured .card-divider {
+      background-color: rgba(255, 255, 255, 0.16);
+    }
+
+    .list-heading {
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+    }
+
+    .card.featured .list-heading {
+      color: #FFFFFF;
+    }
+
+    .card-list {
+      list-style: none;
+      margin-bottom: 34px;
+      flex-grow: 1;
+    }
+
+    .card-list li {
+      position: relative;
+      padding-left: 18px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 11px;
+      line-height: 1.55;
+    }
+
+    .card.featured .card-list li {
+      color: var(--text-light);
+    }
+
+    .card-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--brand-gold);
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .card.featured .card-list li::before {
+      color: var(--brand-champagne);
+    }
+
+    .btn-card {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 4px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14.5px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1.5px solid var(--brand-green);
+      color: var(--brand-green);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--brand-green);
+      color: #FFFFFF;
+    }
+
+    .btn-gold {
+      background-color: var(--brand-champagne);
+      border: 1.5px solid var(--brand-champagne);
+      color: var(--brand-green-dark);
+    }
+
+    .btn-gold:hover {
+      background-color: var(--brand-champagne-hover);
+      border-color: var(--brand-champagne-hover);
+    }
+
+    /* About ORVIEWS Section */
+    .about-section {
+      background-color: #FFFFFF;
+      border-top: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-light);
+      padding: 96px 24px;
+    }
+
+    .about-container {
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 64px;
+      align-items: center;
+      margin-bottom: 64px;
+    }
+
+    .about-content h2 {
+      font-size: clamp(32px, 3.8vw, 44px);
+      line-height: 1.15;
+      color: var(--brand-green);
+      margin-bottom: 22px;
+    }
+
+    .about-content p {
+      font-size: 15.5px;
+      color: var(--text-secondary);
+      margin-bottom: 18px;
+      line-height: 1.8;
+    }
+
+    .stats-panel {
+      background-color: var(--brand-green);
+      color: #FFFFFF;
+      border-radius: 8px;
+      padding: 40px 36px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px 24px;
+      box-shadow: var(--shadow-featured);
+    }
+
+    .stat-item {
+      border-left: 2px solid rgba(231, 207, 155, 0.45);
+      padding-left: 16px;
+    }
+
+    .stat-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--brand-champagne);
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-light);
+      line-height: 1.45;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .pillar h3 {
+      font-size: 24px;
+      color: var(--brand-green);
+      margin-bottom: 10px;
+    }
+
+    .pillar p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* Compliance & Payment Transparency Strip */
+    .compliance-section {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 56px 24px;
+    }
+
+    .compliance-box {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 32px 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .compliance-text h3 {
+      font-size: 24px;
+      color: var(--brand-green);
+      margin-bottom: 6px;
+    }
+
+    .compliance-text p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      max-width: 640px;
+    }
+
+    .payment-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pay-pill {
+      padding: 7px 14px;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--brand-green);
+      background-color: var(--bg-page);
+      letter-spacing: 0.02em;
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--brand-green-dark);
+      color: rgba(255, 255, 255, 0.78);
+      padding: 56px 24px 36px;
+      font-size: 13.5px;
+    }
+
+    .footer-container {
+      max-width: 1160px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 40px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: #FFFFFF;
+      margin-bottom: 12px;
+    }
+
+    .footer-col h4 {
+      color: var(--brand-champagne);
+      font-size: 12.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+
+    .footer-col ul {
+      list-style: none;
+    }
+
+    .footer-col ul li {
+      margin-bottom: 8px;
+    }
+
+    .footer-col a {
+      color: rgba(255, 255, 255, 0.78);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover {
+      color: var(--brand-champagne);
+    }
+
+    .footer-bottom {
+      max-width: 1160px;
+      margin: 24px auto 0;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 12.5px;
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(9, 55, 37, 0.55);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background-color: #FFFFFF;
+      max-width: 600px;
+      width: 100%;
+      border-radius: 8px;
+      padding: 36px;
+      position: relative;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .modal-box h3 {
+      font-size: 28px;
+      color: var(--brand-green);
+      margin-bottom: 14px;
+    }
+
+    .modal-box p, .modal-box li {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      line-height: 1.7;
+    }
+
+    .modal-box ul {
+      padding-left: 20px;
+      margin-bottom: 18px;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .cards-grid, .about-grid, .pillars-grid, .footer-container {
+        grid-template-columns: 1fr;
+      }
+      .card-desc {
+        min-height: auto;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎵 Audio Splitter Pro</h1>
-        <p class="subtitle">Automatically split audio files by detecting silence intervals</p>
 
-        <div class="feature-list">
-            <div class="feature-item">
-                <div class="feature-icon">⚡</div>
-                <div class="feature-text">Fast Processing</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">🎯</div>
-                <div class="feature-text">Smart Detection</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">🔇</div>
-                <div class="feature-text">Remove Silence</div>
-            </div>
-        </div>
-
-        <div class="info-card">
-            💡 <strong>Tip:</strong> This tool detects silence intervals longer than 2 seconds and splits your audio accordingly. All segments are exported without silence.
-        </div>
-
-        <label for="file-input" class="upload-section" id="upload-section">
-            <div class="upload-icon">📁</div>
-            <div class="upload-text">Click to choose an audio file</div>
-        </label>
-        <input type="file" id="file-input" accept="audio/*">
-
-        <div id="waveform" style="display: none;"></div>
-
-        <button id="split-button" class="button" disabled>🎬 Split Audio & Download</button>
-
-        <div id="status">
-            <div id="status-text">Ready to process...</div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress-fill"></div>
-            </div>
-        </div>
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <span class="logo-mark">ORVIEWS</span>
+        <span class="logo-sub">Singapore</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#programs">CSCA Programs</a>
+        <a href="#about">About ORVIEWS</a>
+        <a href="javascript:void(0)" onclick="openModal('policy')">Refund Policy</a>
+        <a href="javascript:void(0)" onclick="openModal('enroll', 'General Admissions Consultation')" class="nav-cta">Admissions Inquiry</a>
+      </nav>
     </div>
+  </header>
 
-    <script>
-        let wavesurfer;
-        let fileName = '';
+  <!-- Hero Section -->
+  <section class="hero">
+    <span class="eyebrow">2026/2027 Academic Admissions · Mandatory CSCA Track</span>
+    <h1>CSCA Preparatory Programs for International Applicants</h1>
+    <p>
+      Starting from the 2026/2027 intake, international undergraduate applicants to China's 306 CSC-designated universities must submit official CSCA scores. ORVIEWS delivers structured, bilingual online preparation engineered for top-tier university admission.
+    </p>
+    <div class="hero-badges">
+      <span>Mathematics (Mandatory)</span>
+      <span>Physics &amp; Chemistry (EN / CN)</span>
+      <span>Academic Chinese (Liberal Arts &amp; Science)</span>
+    </div>
+  </section>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            wavesurfer = WaveSurfer.create({
-                container: '#waveform',
-                waveColor: '#667eea',
-                progressColor: '#764ba2',
-                cursorColor: '#1e293b',
-                barWidth: 3,
-                barRadius: 3,
-                responsive: true,
-                height: 148,
-                barGap: 2
-            });
+  <!-- Three Course Packages -->
+  <section id="programs" class="packages-section">
+    <div class="cards-grid">
 
-            document.getElementById('file-input').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    fileName = file.name.replace(/\.[^/.]+$/, "");
-                    document.getElementById('waveform').style.display = 'block';
-                    document.getElementById('upload-section').style.display = 'none';
-                    wavesurfer.loadBlob(file);
-                    document.getElementById('split-button').disabled = false;
-                    updateStatus('Audio file loaded successfully! Ready to split.', 0);
-                }
-            });
+      <!-- Package 1: Systematic Program -->
+      <article class="card">
+        <div class="card-tag">Systematic Program</div>
+        <h2 class="card-title">Comprehensive Mastery</h2>
+        <p class="card-desc">
+          End-to-end 1-on-1 live online instruction across all required CSCA subjects, paired with recorded revision lectures, proprietary bilingual study guides, and full AI question bank access.
+        </p>
+        <div class="card-price-box">
+          <span class="price-amount">SGD 2,880</span>
+          <span class="price-unit">/ 60 Live Hours + Full Digital Suite</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="list-heading">Ideal For</div>
+        <ul class="card-list">
+          <li>High school students (Grades 10–12) planning 6–12 months ahead</li>
+          <li>Applicants seeking structured mastery across Math, Sciences &amp; Chinese</li>
+          <li>Students transitioning from IB, A-Level, AP, or local curricula to CSCA standards</li>
+        </ul>
+        <button class="btn-card btn-outline" onclick="openModal('enroll', 'Systematic Program — Comprehensive Mastery (SGD 6,880)')">
+          View Syllabus &amp; Enroll
+        </button>
+      </article>
 
-            document.getElementById('split-button').addEventListener('click', splitAudio);
-        });
+      <!-- Package 2: Intensive Program (Featured Dark Green) -->
+      <article class="card featured">
+        <div class="card-tag">Intensive Program</div>
+        <h2 class="card-title">Targeted Score Boost</h2>
+        <p class="card-desc">
+          Diagnostic 1-on-1 tutoring designed to pinpoint syllabus blind spots, sharpen high-yield test-taking precision, and build speed through multi-round full-length CSCA mock exams.
+        </p>
+        <div class="card-price-box">
+          <span class="price-amount">SGD 2,680</span>
+          <span class="price-unit">/ 30 Live Hours + 6 Full Mock Exams</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="list-heading">Ideal For</div>
+        <ul class="card-list">
+          <li>Applicants with foundational knowledge aiming for competitive scholarship cutoffs</li>
+          <li>Candidates needing rapid score improvement in specific weaker subjects</li>
+          <li>Final-sprint preparation 1–3 months before the official CSCA exam window</li>
+        </ul>
+        <button class="btn-card btn-gold" onclick="openModal('enroll', 'Intensive Program — Targeted Score Boost (SGD 1,680)')">
+          View Syllabus &amp; Enroll
+        </button>
+      </article>
 
-        function updateStatus(text, progress) {
-            const statusElement = document.getElementById('status');
-            const statusText = document.getElementById('status-text');
-            const progressFill = document.getElementById('progress-fill');
-            
-            statusElement.classList.add('active');
-            statusText.textContent = text;
-            progressFill.style.width = progress + '%';
-        }
+      <!-- Package 3: AI Practice Bank -->
+      <article class="card">
+        <div class="card-tag">Digital Self-Study</div>
+        <h2 class="card-title">AI Practice Bank</h2>
+        <p class="card-desc">
+          24/7 cloud access to our CSCA-aligned bilingual (EN/CN) question bank featuring timed 60-minute / 48-question simulations, instant step-by-step solutions, and adaptive weakness analytics.
+        </p>
+        <div class="card-price-box">
+          <span class="price-amount">SGD 398</span>
+          <span class="price-unit">/ 6-Month Unlimited Platform Access</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="list-heading">Ideal For</div>
+        <ul class="card-list">
+          <li>Independent learners seeking authentic CSCA question formats and pacing</li>
+          <li>Students looking to drill Math, Physics, and Chemistry speed under timed pressure</li>
+          <li>Applicants wanting AI-driven diagnostic reports before booking live tutoring</li>
+        </ul>
+        <button class="btn-card btn-outline" onclick="openModal('enroll', 'AI Practice Bank — 6-Month Access (SGD 198)')">
+          Explore AI Platform
+        </button>
+      </article>
 
-        async function splitAudio() {
-            updateStatus('Analyzing audio...', 10);
+    </div>
+  </section>
 
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const audioBuffer = await wavesurfer.backend.buffer;
-            const channelData = audioBuffer.getChannelData(0);
-            const sampleRate = audioBuffer.sampleRate;
-            const silenceThreshold = 0.01;
-            const minSilenceDuration = 2;
-            const minSegmentDuration = 1;
+  <!-- About ORVIEWS Section -->
+  <section id="about" class="about-section">
+    <div class="about-container">
+      <div class="about-grid">
+        <div class="about-content">
+          <span class="eyebrow">About ORVIEWS PTE. LTD.</span>
+          <h2>Pioneering Cross-Border Online Education from Singapore</h2>
+          <p>
+            Headquartered in Singapore, <strong>ORVIEWS</strong> is a premier digital education and edtech pioneer dedicated to preparing international and overseas students for China's most selective university entrance examinations.
+          </p>
+          <p>
+            Long before standardized digital testing became the norm for international admissions, ORVIEWS built proprietary 1-on-1 live tutoring frameworks, bilingual academic curricula, and intelligent diagnostic platforms. Our academic research team continuously aligns every syllabus module with official Chinese higher-education testing standards—empowering students across Asia-Pacific, Europe, and North America to compete with clarity and confidence.
+          </p>
+        </div>
 
-            let segments = [];
-            let segmentStart = null;
-            let silenceStart = null;
+        <div class="stats-panel">
+          <div class="stat-item">
+            <div class="stat-number">306</div>
+            <div class="stat-label">CSC-Designated Chinese Universities Covered</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">94%</div>
+            <div class="stat-label">Target University Admission Rate Across Cohorts</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">20+</div>
+            <div class="stat-label">Countries &amp; Regions Represented by Our Students</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Bilingual (EN/CN) Curriculum &amp; AI Diagnostics</div>
+          </div>
+        </div>
+      </div>
 
-            updateStatus('Detecting silence intervals...', 30);
+      <div class="pillars-grid">
+        <div class="pillar">
+          <h3>Academic Rigor</h3>
+          <p>
+            Every CSCA lesson plan is authored by subject-matter specialists familiar with both international curricula (IB/A-Level/AP) and Chinese university entrance benchmarks, bridging conceptual gaps seamlessly.
+          </p>
+        </div>
+        <div class="pillar">
+          <h3>Proprietary EdTech</h3>
+          <p>
+            Our self-developed AI testing engine replicates the exact interface, question weighting, and 60-minute timing pressure of the official CSCA exam, turning raw practice into measurable score gains.
+          </p>
+        </div>
+        <div class="pillar">
+          <h3>Global Standards</h3>
+          <p>
+            Operated by ORVIEWS PTE. LTD. in Singapore, we uphold transparent tuition schedules, verifiable digital service delivery, and dedicated cross-timezone academic advising for international families.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            for (let i = 0; i < channelData.length; i++) {
-                if (Math.abs(channelData[i]) >= silenceThreshold) {
-                    if (segmentStart === null) {
-                        segmentStart = i;
-                    }
-                    silenceStart = null;
-                } else {
-                    if (silenceStart === null) {
-                        silenceStart = i;
-                    }
-                    if (segmentStart !== null && (i - silenceStart) / sampleRate >= minSilenceDuration) {
-                        if ((silenceStart - segmentStart) / sampleRate >= minSegmentDuration) {
-                            segments.push({ start: segmentStart, end: silenceStart });
-                        }
-                        segmentStart = null;
-                    }
-                }
-            }
+  <!-- Payment & Compliance Transparency -->
+  <section class="compliance-section">
+    <div class="compliance-box">
+      <div class="compliance-text">
+        <h3>Transparent Tuition &amp; Secure Global Payments</h3>
+        <p>
+          All tuition fees are transparently billed in Singapore Dollars (SGD) with instant digital receipts and clear service agreements. Digital AI accounts activate within 24 hours; live 1-on-1 onboarding begins within 3 business days of enrollment.
+        </p>
+      </div>
+      <div class="payment-badges">
+        <span class="pay-pill">PayNow</span>
+        <span class="pay-pill">Alipay+</span>
+        <span class="pay-pill">WeChat Pay</span>
+        <span class="pay-pill">Visa / Mastercard</span>
+      </div>
+    </div>
+  </section>
 
-            if (segmentStart !== null) {
-                segments.push({ start: segmentStart, end: channelData.length });
-            }
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div>
+        <div class="footer-brand">ORVIEWS</div>
+        <p>
+          ORVIEWS PTE. LTD.<br />
+          Registered Education Technology &amp; Online Tutoring Provider in Singapore.<br />
+          Empowering international students to excel in China's CSCA and university admissions.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Programs &amp; Legal</h4>
+        <ul>
+          <li><a href="#programs">CSCA Systematic Program</a></li>
+          <li><a href="#programs">CSCA Intensive Program</a></li>
+          <li><a href="#programs">CSCA AI Practice Bank</a></li>
+          <li><a onclick="openModal('policy')">Refund &amp; Cancellation Policy</a></li>
+          <li><a onclick="openModal('terms')">Terms of Service &amp; Privacy</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Admissions Office</h4>
+        <ul>
+          <li>Email: admissions@orviews.com</li>
+          <li>Support: Mon – Sat, 09:00 – 20:00 (GMT+8)</li>
+          <li>Location: Singapore</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ORVIEWS PTE. LTD. All Rights Reserved.</span>
+      <span>Independent CSCA Preparatory Institution · Not affiliated with CSC or testing authorities.</span>
+    </div>
+  </footer>
 
-            updateStatus(`Found ${segments.length} segments. Creating audio files...`, 50);
+  <!-- Interactive Modal (Enrollment / Refund Policy / Terms) -->
+  <div id="infoModal" class="modal-overlay" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <h3 id="modalTitle">Program Details</h3>
+      <div id="modalBody"></div>
+    </div>
+  </div>
 
-            const zip = new JSZip();
+  <script>
+    function openModal(type, programName = '') {
+      const modal = document.getElementById('infoModal');
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
 
-            for (let i = 0; i < segments.length; i++) {
-                const { start, end } = segments[i];
-                const segmentBuffer = audioContext.createBuffer(
-                    audioBuffer.numberOfChannels,
-                    end - start,
-                    sampleRate
-                );
+      if (type === 'enroll') {
+        title.textContent = 'Enrollment & Program Details';
+        body.innerHTML = `
+          <p><strong>Selected Program:</strong> ${programName}</p>
+          <p><strong>Service Delivery:</strong></p>
+          <ul>
+            <li><strong>Live 1-on-1 Programs:</strong> Academic diagnostic assessment and personalized study schedule delivered within 3 business days of tuition confirmation.</li>
+            <li><strong>AI Practice Bank:</strong> Instant cloud login credentials issued via email within 24 hours of payment.</li>
+          </ul>
+          <p>To receive the full bilingual syllabus or request an official tuition invoice (PayNow, Alipay+, WeChat Pay, or Card), please contact our Singapore Admissions Office at <strong>admissions@orviews.com</strong>.</p>
+        `;
+      } else if (type === 'policy') {
+        title.textContent = 'Refund & Cancellation Policy';
+        body.innerHTML = `
+          <p>ORVIEWS PTE. LTD. maintains a transparent and fair refund policy for all international students:</p>
+          <ul>
+            <li><strong>Live 1-on-1 Programs (Systematic &amp; Intensive):</strong> Full refund available within 7 calendar days of purchase if no live sessions have been consumed. After sessions begin, unused hours may be refunded on a pro-rata basis within 30 days, subject to a 10% administrative and digital material fee.</li>
+            <li><strong>AI Practice Bank (Digital Access):</strong> Due to immediate access to proprietary digital question banks and AI diagnostics, subscriptions are non-refundable once account credentials have been activated, except in cases of verified technical non-delivery.</li>
+            <li><strong>Processing Timeline:</strong> Approved refunds are returned via the original payment method within 7–14 business days.</li>
+          </ul>
+          <p>For refund requests, contact <strong>admissions@orviews.com</strong> with your invoice number.</p>
+        `;
+      } else if (type === 'terms') {
+        title.textContent = 'Terms of Service & Privacy';
+        body.innerHTML = `
+          <p>All educational services and digital software products on this website are operated by <strong>ORVIEWS PTE. LTD.</strong> (Singapore).</p>
+          <ul>
+            <li><strong>Intellectual Property:</strong> All bilingual lecture notes, mock exams, and AI question banks are strictly for individual student use and may not be redistributed.</li>
+            <li><strong>Data Protection:</strong> Student data is handled in strict accordance with Singapore's Personal Data Protection Act (PDPA) and used solely for academic delivery and payment verification.</li>
+            <li><strong>Disclaimer:</strong> ORVIEWS provides independent test preparation. Final CSCA scores and university admission decisions rest solely with official examination bodies and respective universities.</li>
+          </ul>
+        `;
+      }
 
-                for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
-                    const channelData = audioBuffer.getChannelData(channel);
-                    segmentBuffer.copyToChannel(channelData.slice(start, end), channel);
-                }
+      modal.classList.add('active');
+    }
 
-                const blob = await bufferToWave(segmentBuffer, segmentBuffer.length);
-                zip.file(`${fileName}_segment_${String(i + 1).padStart(3, '0')}.wav`, blob);
+    function closeModal() {
+      document.getElementById('infoModal').classList.remove('active');
+    }
 
-                const progress = 50 + ((i + 1) / segments.length) * 30;
-                updateStatus(`Processing segment ${i + 1} of ${segments.length}...`, progress);
-            }
-
-            updateStatus('Generating zip file...', 85);
-            
-            zip.generateAsync({type:"blob"})
-            .then(function(content) {
-                const url = URL.createObjectURL(content);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${fileName}_segments.zip`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                updateStatus('✅ Complete! Your audio segments have been downloaded.', 100);
-            });
-        }
-
-        function bufferToWave(abuffer, len) {
-            const numOfChan = abuffer.numberOfChannels;
-            const length = len * numOfChan * 2 + 44;
-            const buffer = new ArrayBuffer(length);
-            const view = new DataView(buffer);
-            const channels = [];
-            let i, sample;
-            let offset = 0;
-
-            writeString(view, 0, 'RIFF');
-            view.setUint32(4, length - 8, true);
-            writeString(view, 8, 'WAVE');
-            writeString(view, 12, 'fmt ');
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true);
-            view.setUint16(22, numOfChan, true);
-            view.setUint32(24, abuffer.sampleRate, true);
-            view.setUint32(28, abuffer.sampleRate * 2 * numOfChan, true);
-            view.setUint16(32, numOfChan * 2, true);
-            view.setUint16(34, 16, true);
-            writeString(view, 36, 'data');
-            view.setUint32(40, length - 44, true);
-
-            for (i = 0; i < abuffer.numberOfChannels; i++)
-                channels.push(abuffer.getChannelData(i));
-
-            while (offset < len) {
-                for (i = 0; i < numOfChan; i++) {
-                    sample = Math.max(-1, Math.min(1, channels[i][offset]));
-                    sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
-                    view.setInt16(44 + (offset * numOfChan + i) * 2, sample, true);
-                }
-                offset++;
-            }
-
-            return new Blob([buffer], { type: 'audio/wav' });
-        }
-
-        function writeString(view, offset, string) {
-            for (let i = 0; i < string.length; i++) {
-                view.setUint8(offset + i, string.charCodeAt(i));
-            }
-        }
-    </script>
+    function closeModalOnBackdrop(e) {
+      if (e.target.id === 'infoModal') {
+        closeModal();
+      }
+    }
+  </script>
 </body>
 </html>
